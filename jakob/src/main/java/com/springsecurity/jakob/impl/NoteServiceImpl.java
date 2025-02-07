@@ -2,6 +2,7 @@ package com.springsecurity.jakob.impl;
 
 import com.springsecurity.jakob.models.Note;
 import com.springsecurity.jakob.repositories.NoteRepository;
+import com.springsecurity.jakob.services.AuditLogService;
 import com.springsecurity.jakob.services.NoteService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -14,12 +15,17 @@ public class NoteServiceImpl implements NoteService {
     @Autowired
     private NoteRepository noteRepository;
 
+    @Autowired
+    private AuditLogService auditLogService;
+
     @Override
     public Note createNoteForUser(String username, String content) {
         Note note = new Note();
         note.setContent(content);
         note.setOwnerUsername(username);
-        return noteRepository.save(note);
+        Note savedNote = noteRepository.save(note);
+        auditLogService.logNoteCreation(username, note);
+        return savedNote;
     }
 
     @Override
@@ -27,12 +33,17 @@ public class NoteServiceImpl implements NoteService {
         Note note = noteRepository.findById (noteId).orElseThrow(()
                 -> new RuntimeException("Note not found"));
         note.setContent(content);
+        auditLogService.logNoteUpdate(username, note);
         return noteRepository.save(note);
     }
 
     @Override
     public void deleteNoteForUser(Long noteId, String username) {
-        noteRepository.deleteById(noteId);
+        Note note = noteRepository.findById(noteId).orElseThrow(
+                () -> new RuntimeException("Note not found")
+        );
+        auditLogService.logNoteDeletion(username, noteId);
+        noteRepository.delete(note);
     }
 
     @Override
