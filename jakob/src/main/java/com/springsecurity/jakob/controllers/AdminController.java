@@ -4,7 +4,6 @@ import com.springsecurity.jakob.dtos.UserDTO;
 import com.springsecurity.jakob.models.Role;
 import com.springsecurity.jakob.models.User;
 import com.springsecurity.jakob.repositories.RoleRepository;
-import com.springsecurity.jakob.repositories.UserRepository;
 import com.springsecurity.jakob.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -23,9 +22,6 @@ public class AdminController {
     UserService userService;
     @Autowired
     private RoleRepository roleRepository;
-    @Autowired
-    private UserRepository userRepository;
-
 
     @GetMapping("/getusers")
     public ResponseEntity<List<User>> getAllUsers() {

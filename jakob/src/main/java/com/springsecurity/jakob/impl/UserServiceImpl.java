@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
-        User user = findUserById(userId);;
+        User user = findUserById(userId);
         AppRole appRole = AppRole.valueOf(roleName);
         Role role = roleRepository.findByRoleName(appRole)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
