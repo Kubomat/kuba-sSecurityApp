@@ -23,7 +23,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
-        User user = userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+        User user = findUserById(userId);;
         AppRole appRole = AppRole.valueOf(roleName);
         Role role = roleRepository.findByRoleName(appRole)
                 .orElseThrow(() -> new RuntimeException("Role not found"));
@@ -40,8 +40,7 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserDTO getUserById(Long id) {
-//        return userRepository.findById(id).orElseThrow();
-        User user = userRepository.findById(id).orElseThrow();
+        User user = findUserById(id);
         return convertToDto(user);
     }
 
@@ -49,6 +48,33 @@ public class UserServiceImpl implements UserService {
     public User findByUsername(String username) {
         return userRepository.findByUserName(username)
                 .orElseThrow(() -> new RuntimeException(String.format("User with username: %s not found", username)));
+    }
+
+    @Override
+    public void updateAccountLockStatus(Long userId, boolean lock) {
+        User user = findUserById(userId);
+        user.setAccountNonLocked(!lock);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountExpiryStatus(Long userId, boolean expiry) {
+        User user = findUserById(userId);
+        user.setAccountNonExpired(!expiry);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updateAccountEnabledStatus(Long userId, boolean enabled) {
+        User user = findUserById(userId);
+        user.setEnabled(enabled);
+        userRepository.save(user);
+
+    }
+
+    @Override
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
     }
 
     private UserDTO convertToDto(User user) {
