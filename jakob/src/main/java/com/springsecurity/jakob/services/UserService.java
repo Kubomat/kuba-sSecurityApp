@@ -21,4 +21,8 @@ public interface UserService {
     void updateAccountEnabledStatus(Long userId, boolean enabled);
 
     User findUserById(Long userId);
+
+    void updateCredentialsExpiryStatus(Long userId, boolean expire);
+
+    void updatePassword(Long userId, String password);
 }

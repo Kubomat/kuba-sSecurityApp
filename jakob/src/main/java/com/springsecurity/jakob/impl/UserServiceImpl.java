@@ -8,6 +8,7 @@ import com.springsecurity.jakob.repositories.RoleRepository;
 import com.springsecurity.jakob.repositories.UserRepository;
 import com.springsecurity.jakob.services.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
@@ -20,6 +21,13 @@ public class UserServiceImpl implements UserService {
 
     @Autowired
     RoleRepository roleRepository;
+    @Autowired
+    private PasswordEncoder passwordEncoder;
+
+    @Override
+    public User findUserById(Long userId) {
+        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    }
 
     @Override
     public void updateUserRole(Long userId, String roleName) {
@@ -73,8 +81,21 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public User findUserById(Long userId) {
-        return userRepository.findById(userId).orElseThrow(() -> new RuntimeException("User not found"));
+    public void updateCredentialsExpiryStatus(Long userId, boolean expire) {
+        User user = findUserById(userId);
+        user.setCredentialsNonExpired(!expire);
+        userRepository.save(user);
+    }
+
+    @Override
+    public void updatePassword(Long userId, String password) {
+        try {
+            User user = findUserById(userId);
+            user.setPassword(passwordEncoder.encode(password));
+            userRepository.save(user);
+        } catch (Exception e){
+            throw new RuntimeException("Failed to update password");
+        }
     }
 
     private UserDTO convertToDto(User user) {
